@@ -1,4 +1,6 @@
-package com.txl.equipment;
+package com.txl.equipment.key;
+
+import com.txl.equipment.key.DirtyFlagMap;
 
 import java.io.Serializable;
 

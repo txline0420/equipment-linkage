@@ -1,4 +1,4 @@
-package com.txl.equipment;
+package com.txl.equipment.key;
 
 import java.lang.reflect.Array;
 import java.util.*;

@@ -1,4 +1,6 @@
-package com.txl.equipment;
+package com.txl.equipment.job;
+
+import com.txl.equipment.key.Key;
 
 /**
  * Created by TangXiangLin on 2023-02-13 11:14

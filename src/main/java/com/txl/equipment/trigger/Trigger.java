@@ -1,4 +1,8 @@
-package com.txl.equipment;
+package com.txl.equipment.trigger;
+
+import com.txl.equipment.job.JobDataMap;
+import com.txl.equipment.job.JobKey;
+import com.txl.equipment.schedule.ScheduleBuilder;
 
 import java.io.Serializable;
 import java.util.Comparator;

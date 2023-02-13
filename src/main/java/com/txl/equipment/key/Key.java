@@ -1,4 +1,4 @@
-package com.txl.equipment;
+package com.txl.equipment.key;
 
 import java.io.Serializable;
 import java.util.UUID;
