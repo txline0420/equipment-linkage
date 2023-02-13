@@ -1,9 +1,88 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
+  <!-- 工程属性 -->
   <groupId>com.txl</groupId>
   <artifactId>equipment-linkage</artifactId>
   <version>1.0.0</version>
   <name>Archetype - equipment-linkage</name>
+
+
+  <!-- 工程信息 -->
   <url>http://maven.apache.org</url>
+  <organization>
+    <name>晟能电子有限公司</name>
+    <url>www.senergy.com</url>
+  </organization>
+  <developers>
+    <developer>
+      <name>唐湘林</name>
+      <email>txline0420@163.com</email>
+    </developer>
+  </developers>
+
+  <!-- 工程打包方式 -->
+  <packaging>jar</packaging>
+
+  <!-- 工程依赖包版本管理 -->
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <spring.version>5.3.25</spring.version>
+
+    <!-- 工具包 -->
+    <commons.lang3.version>3.12.0</commons.lang3.version>
+
+    <!-- Logger -->
+    <slf4j.version>1.7.25</slf4j.version>
+    <logback.version>1.2.3</logback.version>
+
+  </properties>
+
+  <!-- 工程做依赖包的管理 -->
+  <dependencies>
+
+    <!-- 依赖包 -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
+    <!-- 工具包 -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons.lang3.version}</version>
+    </dependency>
+
+    <!-- 日志组件 -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <version>${logback.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-access</artifactId>
+      <version>${logback.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+    </dependency>
+
+  </dependencies>
+
 </project>
