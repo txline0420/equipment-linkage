@@ -1,18 +1,15 @@
 package com.txl.equipment.schedule;
 
 import com.txl.equipment.exception.SchedulerException;
-import com.txl.equipment.job.JobDetail;
-import com.txl.equipment.job.JobExecutionContext;
-import com.txl.equipment.job.JobFactory;
+import com.txl.equipment.exception.UnableToInterruptJobException;
+import com.txl.equipment.job.*;
 import com.txl.equipment.key.Key;
 import com.txl.equipment.listener.ListenerManager;
+import com.txl.equipment.matcher.GroupMatcher;
 import com.txl.equipment.trigger.Trigger;
 import com.txl.equipment.trigger.TriggerKey;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by TangXiangLin on 2023-02-13 15:05
@@ -118,6 +115,117 @@ public interface Scheduler {
     /** 从调度器中删除指定的触发器集 */
     boolean unscheduleJobs(List<TriggerKey> triggerKeys) throws SchedulerException;
 
+    /** 更新触发器，新的触发器必须与现有的作业任务关联 */
+    Date rescheduleJob(TriggerKey triggerKey, Trigger newTrigger) throws SchedulerException;
 
+    /** 调度器添加作业任务添加到计划程序中，若没有关联的触发器。作业将处于“休眠”状态，
+     * 直到使用触发器或为其调用Scheduler.triggerJob()对其进行调度
+     * 没有触发器关联的作业不能持久化
+     */
+    void addJob(JobDetail jobDetail, boolean replace) throws SchedulerException;
 
+    /** 调度器添加作业任务添加到计划程序中，若没有关联的触发器。作业将处于“休眠”状态，
+     * 直到使用触发器或为其调用Scheduler.triggerJob()对其进行调度
+     * 如果storeNonDurableWhileAwaitingScheduling参数设置为true，则可以存储非持久作业。
+     */
+    void addJob(JobDetail jobDetail, boolean replace, boolean storeNonDurableWhileAwaitingScheduling) throws SchedulerException;
+
+    /** 从调度器中删除作业任务 */
+    boolean deleteJob(JobKey jobKey) throws SchedulerException;
+
+    /** 从调度器中删除作业任务集 */
+    boolean deleteJobs(List<JobKey> jobKeys) throws SchedulerException;
+
+    /** 根据给定的作业任务、立即调度执行 */
+    void triggerJob(JobKey jobKey) throws SchedulerException;
+
+    /** 根据给定的作业任务及任务参数、立即调度执行 */
+    void triggerJob(JobKey jobKey, JobDataMap data) throws SchedulerException;
+
+    /** 根据给定的作业任务、暂停调度 */
+    void pauseJob(JobKey jobKey) throws SchedulerException;
+
+    /** 根据给定的匹配组中的作业任务、暂停调度 */
+    void pauseJobs(GroupMatcher<JobKey> matcher) throws SchedulerException;
+
+    /** 根据给定的触发器、暂停调度 */
+    void pauseTrigger(TriggerKey triggerKey) throws SchedulerException;
+
+    /** 根据给定的匹配组中的触发器、暂停调度 */
+    void pauseTriggers(GroupMatcher<TriggerKey> matcher) throws SchedulerException;
+
+    /** 根据给定的作业任务、恢复调度 */
+    void resumeJob(JobKey jobKey) throws SchedulerException;
+
+    /** 根据给定的匹配组中的作业任务、恢复调度 */
+    void resumeJobs(GroupMatcher<JobKey> matcher) throws SchedulerException;
+
+    /** 根据给定的触发器、恢复调度 */
+    void resumeTrigger(TriggerKey triggerKey) throws SchedulerException;
+
+    /** 根据给定的匹配组中的触发器、恢复调度 */
+    void resumeTriggers(GroupMatcher<TriggerKey> matcher) throws SchedulerException;
+
+    /** 暂停所有调度任务, 使用此方法后，必须调用resumeAll()恢复调度*/
+    void pauseAll() throws SchedulerException;
+
+    /** 恢复所有调度任务 */
+    void resumeAll() throws SchedulerException;
+
+    /** 获取所有的作业任务组名 */
+    List<String> getJobGroupNames() throws SchedulerException;
+
+    /** 根据匹配组中的作业任务标识集，获取作务任务标识 */
+    Set<JobKey> getJobKeys(GroupMatcher<JobKey> matcher) throws SchedulerException;
+
+    /** 根据作务任务标识，获取所有关联的触发器 */
+    List<? extends Trigger> getTriggersOfJob(JobKey jobKey) throws SchedulerException;
+
+    /** 获取所有触发器的组名称 */
+    List<String> getTriggerGroupNames() throws SchedulerException;
+
+    /** 根据匹配组中的触发器标识集，获取触发标识 */
+    Set<TriggerKey> getTriggerKeys(GroupMatcher<TriggerKey> matcher) throws SchedulerException;
+
+    /** 获取所有已暂停调度的触发器的组名 */
+    Set<String> getPausedTriggerGroups() throws SchedulerException;
+
+    /** 根据作业任务标识，获取作业任务描述 */
+    JobDetail getJobDetail(JobKey jobKey) throws SchedulerException;
+
+    /** 根据触发器标识，获取触发器 */
+    Trigger getTrigger(TriggerKey triggerKey) throws SchedulerException;
+
+    /** 根据触发器标识，获取触发器的状态 */
+    Trigger.TriggerState getTriggerState(TriggerKey triggerKey) throws SchedulerException;
+
+    /** 重置触发器标识 */
+    void resetTriggerFromErrorState(TriggerKey triggerKey) throws SchedulerException;
+
+    /** 在调度器中添加给定的日历 */
+    void addCalendar(String calName, Calendar calendar, boolean replace, boolean updateTriggers) throws SchedulerException;
+
+    /** 在调度器中删除给定的日历 */
+    boolean deleteCalendar(String calName) throws SchedulerException;
+
+    /** 根据名称获取日历 */
+    Calendar getCalendar(String calName) throws SchedulerException;
+
+    /** 获取所有日历名称 */
+    List<String> getCalendarNames() throws SchedulerException;
+
+    /** 根据作业任务，中断作业任务 */
+    boolean interrupt(JobKey jobKey) throws UnableToInterruptJobException;
+
+    /** 根据调度器实例id，中断作业任务 */
+    boolean interrupt(String fireInstanceId) throws UnableToInterruptJobException;
+
+    /** 根据作业任务标识，是否存在作业任务 */
+    boolean checkExists(JobKey jobKey) throws SchedulerException;
+
+    /** 根据触发器标识，是否存在触发器 */
+    boolean checkExists(TriggerKey triggerKey) throws SchedulerException;
+
+    /** 清除所有调度器中的数据 */
+    void clear() throws SchedulerException;
 }
