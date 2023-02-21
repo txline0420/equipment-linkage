@@ -72,6 +72,12 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger>{
     /** 触发器适配策略值 */
     int getMisfireInstruction();
 
+    /** 触发器构建 */
+    TriggerBuilder<? extends Trigger> getTriggerBuilder();
+
+    /** 调度器构建 */
+    ScheduleBuilder<? extends Trigger> getScheduleBuilder();
+
     /** 触发器的同等性 */
     boolean equals(Object other);
 
@@ -113,10 +119,4 @@ public interface Trigger extends Serializable, Cloneable, Comparable<Trigger>{
             return compare(t1.getNextFireTime(), t1.getPriority(), t1.getKey(), t2.getNextFireTime(), t2.getPriority(), t2.getKey());
         }
     }
-
-    /** 触发器构建 */
-    TriggerBuilder<? extends Trigger> getTriggerBuilder();
-
-    /** 调度器构建 */
-    ScheduleBuilder<? extends Trigger> getScheduleBuilder();
 }

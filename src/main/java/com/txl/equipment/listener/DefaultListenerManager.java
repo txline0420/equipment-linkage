@@ -34,12 +34,11 @@ public class DefaultListenerManager implements ListenerManager {
 
     public void addJobListener(JobListener jobListener) {
         addJobListener(jobListener, EverythingMatcher.allJobs());
-        logger.info("JobListener added Schedule.");
     }
 
     public void addJobListener(JobListener jobListener, Matcher<JobKey> matcher) {
         if(jobListener.gerName() == null || jobListener.gerName().length() == 0){
-            throw new LinkageIllegalArgumentException("JobListener name cannot be empty.");
+            throw new LinkageIllegalArgumentException("Add JobListener To Schedule Name Cannot Be Empty.");
         }
 
         synchronized (globalJobListeners){
@@ -51,6 +50,7 @@ public class DefaultListenerManager implements ListenerManager {
               matchersL.add(EverythingMatcher.allJobs());
             }
             globalJobListenersMatchers.put(jobListener.gerName(), matchersL);
+            logger.info("Add JobListener To Schedule Success.");
         }
 
     }
@@ -61,7 +61,7 @@ public class DefaultListenerManager implements ListenerManager {
 
     public void addJobListener(JobListener jobListener, List<Matcher<JobKey>> matchers) {
         if(jobListener.gerName() == null || jobListener.gerName().length() == 0){
-            throw new LinkageIllegalArgumentException("JobListener name cannot be empty.");
+            throw new LinkageIllegalArgumentException("Add JobListener To Schedule Name Cannot Be Empty.");
         }
 
         synchronized (globalJobListeners) {
@@ -73,91 +73,241 @@ public class DefaultListenerManager implements ListenerManager {
                 matchersL.add(EverythingMatcher.allJobs());
             }
             globalJobListenersMatchers.put(jobListener.gerName(), matchersL);
+            logger.info("Add JobListener To Schedule Success.");
         }
 
     }
 
     public boolean addJobListenerMatcher(String listenerName, Matcher<JobKey> matcher) {
-        return false;
+        if(matcher == null){
+            throw new LinkageIllegalArgumentException("Add Matcher JobKey is not acceptable Null.");
+        }
+
+        synchronized (globalJobListeners) {
+            List<Matcher<JobKey>> matchers = globalJobListenersMatchers.get(listenerName);
+            if(matchers == null){
+                logger.error("Add Matcher JobKey To ListenerManager Failed.");
+                return false;
+            }
+            matchers.add(matcher);
+            logger.info("Add Matcher JobKey To ListenerManager Success.");
+            return true;
+        }
     }
 
     public boolean removeJobListenerMatcher(String listenerName, Matcher<JobKey> matcher) {
-        return false;
-    }
-
-    public boolean setJobListenerMatchers(String listenerName, List<Matcher<JobKey>> matchers) {
-        return false;
+        if(matcher == null){
+            throw new LinkageIllegalArgumentException("Remove Matcher JobKey is not acceptable Null.");
+        }
+        synchronized (globalJobListeners) {
+            List<Matcher<JobKey>> matchers = globalJobListenersMatchers.get(listenerName);
+            if(matchers == null){
+                logger.error("Remove Matcher JobKey From ListenerManager Failed.");
+                return false;
+            }
+            logger.info("Remove Matcher JobKey From ListenerManager Success.");
+            return matchers.remove(matcher);
+        }
     }
 
     public List<Matcher<JobKey>> getJobListenerMatchers(String listenerName) {
-        return null;
+        synchronized (globalJobListeners) {
+            List<Matcher<JobKey>> matchers = globalJobListenersMatchers.get(listenerName);
+            if(matchers == null){
+                logger.error("Get Matcher JobKey From ListenerManager is Null.");
+                return null;
+            }
+            logger.info("Get Matcher JobKey From ListenerManager is {}",matchers.size());
+            return Collections.unmodifiableList(matchers);
+        }
+    }
+
+    public boolean setJobListenerMatchers(String listenerName, List<Matcher<JobKey>> matchers) {
+        if(matchers == null){
+            throw new IllegalArgumentException("Set Matcher JobKey To ListenerManager is not acceptable Null.");
+        }
+
+        synchronized (globalJobListeners) {
+            List<Matcher<JobKey>> oldMatchers = globalJobListenersMatchers.get(listenerName);
+            if(oldMatchers == null){
+                logger.error("Set Matcher JobKey To ListenerManager is Failed.");
+                return false;
+            }
+            logger.info("Set Matcher JobKey To ListenerManager is success.");
+            globalJobListenersMatchers.put(listenerName, matchers);
+            return true;
+        }
     }
 
     public boolean removeJobListener(String name) {
-        return false;
+        synchronized (globalJobListeners) {
+            return (globalJobListeners.remove(name) != null);
+        }
     }
 
     public List<JobListener> getJobListeners() {
-        return null;
+        synchronized (globalJobListeners) {
+            return Collections.unmodifiableList(new LinkedList<JobListener>(globalJobListeners.values()));
+        }
     }
 
     public JobListener getJobListener(String name) {
-        return null;
+        synchronized (globalJobListeners) {
+            return globalJobListeners.get(name);
+        }
     }
 
-    public void addTriggerListener(TriggerListener triggerListener) {
-
-    }
-
-    public void addTriggerListener(TriggerListener triggerListener, Matcher<TriggerKey> matcher) {
-
-    }
-
-    public void addTriggerListener(TriggerListener triggerListener, Matcher<TriggerKey>... matchers) {
-
+    public void addTriggerListener(TriggerListener triggerListener, Matcher<TriggerKey> ... matchers) {
+        addTriggerListener(triggerListener, Arrays.asList(matchers));
     }
 
     public void addTriggerListener(TriggerListener triggerListener, List<Matcher<TriggerKey>> matchers) {
+        if (triggerListener.gerName() == null
+                || triggerListener.gerName().length() == 0) {
+            throw new IllegalArgumentException(
+                    "Add TriggerListener To ListenerManager name cannot be empty.");
+        }
 
+        synchronized (globalTriggerListeners) {
+            globalTriggerListeners.put(triggerListener.gerName(), triggerListener);
+
+            LinkedList<Matcher<TriggerKey>> matchersL = new  LinkedList<Matcher<TriggerKey>>();
+            if(matchers != null && matchers.size() > 0) {
+                matchersL.addAll(matchers);
+            } else {
+                matchersL.add(EverythingMatcher.allTriggers());
+            }
+            globalTriggerListenersMatchers.put(triggerListener.gerName(), matchersL);
+            logger.info("Add TriggerListener To ListenerManager success.");
+        }
+    }
+
+    public void addTriggerListener(TriggerListener triggerListener) {
+        addTriggerListener(triggerListener, EverythingMatcher.allTriggers());
+    }
+
+    public void addTriggerListener(TriggerListener triggerListener, Matcher<TriggerKey> matcher) {
+        if(matcher == null)
+            throw new LinkageIllegalArgumentException(
+                    "Add TriggerListener && matcher To ListenerManager not acceptable matcher is Null.");
+
+        if (triggerListener.gerName() == null
+                || triggerListener.gerName().length() == 0) {
+            throw new LinkageIllegalArgumentException(
+                    "Add TriggerListener To ListenerManager name cannot be empty.");
+        }
+
+        synchronized (globalTriggerListeners) {
+            globalTriggerListeners.put(triggerListener.gerName(), triggerListener);
+            List<Matcher<TriggerKey>> matchers = new LinkedList<Matcher<TriggerKey>>();
+            matchers.add(matcher);
+            globalTriggerListenersMatchers.put(triggerListener.gerName(), matchers);
+            logger.info("Add TriggerListener && matcher To ListenerManager success.");
+        }
     }
 
     public boolean addTriggerListenerMatcher(String listenerName, Matcher<TriggerKey> matcher) {
-        return false;
+        if(matcher == null){
+            throw new LinkageIllegalArgumentException(
+                    "Add TriggerListener && matcher To ListenerManager not acceptable matcher is Null.");
+        }
+
+        synchronized (globalTriggerListeners) {
+            List<Matcher<TriggerKey>> matchers = globalTriggerListenersMatchers.get(listenerName);
+            if(matchers == null){
+                logger.error("Add TriggerListener && matcher To ListenerManager Failed.");
+                return false;
+            }
+            matchers.add(matcher);
+            logger.info("Add TriggerListener && matcher To ListenerManager Success.");
+            return true;
+        }
     }
 
     public boolean removeTriggerListenerMatcher(String listenerName, Matcher<TriggerKey> matcher) {
-        return false;
-    }
+        if(matcher == null){
+            throw new LinkageIllegalArgumentException(
+                    "Remove TriggerListener && matcher From ListenerManager not acceptable matcher is Null.");
+        }
 
-    public boolean setTriggerListenerMatchers(String listenerName, List<Matcher<TriggerKey>> matchers) {
-        return false;
+
+        synchronized (globalTriggerListeners) {
+            List<Matcher<TriggerKey>> matchers = globalTriggerListenersMatchers.get(listenerName);
+            if(matchers == null){
+                logger.error("Remove TriggerListener && matcher From ListenerManager Failed.");
+                return false;
+            }
+            logger.info("Remove TriggerListener && matcher From ListenerManager Success.");
+            return matchers.remove(matcher);
+        }
     }
 
     public List<Matcher<TriggerKey>> getTriggerListenerMatchers(String listenerName) {
-        return null;
+        synchronized (globalTriggerListeners) {
+            List<Matcher<TriggerKey>> matchers = globalTriggerListenersMatchers.get(listenerName);
+            if(matchers == null){
+                logger.error("Get TriggerListenerMatchers From ListenerManager is Null.");
+                return null;
+            }
+            logger.error("Get TriggerListenerMatchers From ListenerManager is {}.",matchers.size());
+            return Collections.unmodifiableList(matchers);
+        }
+    }
+
+    public boolean setTriggerListenerMatchers(String listenerName, List<Matcher<TriggerKey>> matchers)  {
+        if(matchers == null){
+            throw new LinkageIllegalArgumentException(
+                    "Set TriggerListenerMatchers To ListenerManager not acceptable matcher is Null.");
+        }
+
+
+        synchronized (globalTriggerListeners) {
+            List<Matcher<TriggerKey>> oldMatchers = globalTriggerListenersMatchers.get(listenerName);
+            if(oldMatchers == null){
+                logger.error("Set TriggerListenerMatchers To ListenerManager Failed.");
+                return false;
+            }
+            globalTriggerListenersMatchers.put(listenerName, matchers);
+            logger.info("Set TriggerListenerMatchers To ListenerManager Success.");
+            return true;
+        }
     }
 
     public boolean removeTriggerListener(String name) {
-        return false;
+        synchronized (globalTriggerListeners) {
+            return (globalTriggerListeners.remove(name) != null);
+        }
     }
 
+
     public List<TriggerListener> getTriggerListeners() {
-        return null;
+        synchronized (globalTriggerListeners) {
+            return Collections.unmodifiableList(new LinkedList<TriggerListener>(globalTriggerListeners.values()));
+        }
     }
 
     public TriggerListener getTriggerListener(String name) {
-        return null;
+        synchronized (globalTriggerListeners) {
+            return globalTriggerListeners.get(name);
+        }
     }
 
-    public void addSchedulerListener(SchedulerListener schedulerListener) {
 
+    public void addSchedulerListener(SchedulerListener schedulerListener) {
+        synchronized (schedulerListeners) {
+            schedulerListeners.add(schedulerListener);
+        }
     }
 
     public boolean removeSchedulerListener(SchedulerListener schedulerListener) {
-        return false;
+        synchronized (schedulerListeners) {
+            return schedulerListeners.remove(schedulerListener);
+        }
     }
 
     public List<SchedulerListener> getSchedulerListeners() {
-        return null;
+        synchronized (schedulerListeners) {
+            return Collections.unmodifiableList(new ArrayList<SchedulerListener>(schedulerListeners));
+        }
     }
 }

@@ -1,9 +1,9 @@
 package com.txl.equipment.trigger;
 
+import com.txl.equipment.calendar.Calendar;
 import com.txl.equipment.exception.JobExecutionException;
 import com.txl.equipment.job.JobExecutionContext;
 
-import java.util.Calendar;
 import java.util.Date;
 
 /**

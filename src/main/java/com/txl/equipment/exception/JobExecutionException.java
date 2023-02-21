@@ -8,11 +8,14 @@ public class JobExecutionException extends SchedulerException{
 
     private static final long serialVersionUID = 1326342535829043325L;
 
-    private boolean refire = false;
+    /** 是否再次触发 */
+    protected boolean refire = false;
 
-    private boolean unscheduleTrigg = false;
+    /** 是否再次调度 */
+    protected boolean unscheduleTrigg = false;
 
-    private boolean unscheduleAllTriggs = false;
+    /** 所有触发器是否触发并调度完毕 */
+    protected boolean unscheduleAllTriggs = false;
 
     public JobExecutionException() {
     }
@@ -39,8 +42,7 @@ public class JobExecutionException extends SchedulerException{
         super(msg, cause);
     }
 
-    public JobExecutionException(String msg, Throwable cause,
-                                 boolean refireImmediately) {
+    public JobExecutionException(String msg, Throwable cause, boolean refireImmediately) {
         super(msg, cause);
         refire = refireImmediately;
     }
@@ -52,27 +54,32 @@ public class JobExecutionException extends SchedulerException{
         refire = refireImmediately;
     }
 
-    public void setRefireImmediately(boolean refire) {
-        this.refire = refire;
-    }
-
+    /* 是否再次触发 */
     public boolean refireImmediately() {
         return refire;
+    }
+
+    /** 再次调度 */
+    public boolean unscheduleFiringTrigger() {
+        return unscheduleTrigg;
+    }
+
+    /** 所有触发器是否触发并调度完毕 */
+    public boolean unscheduleAllTriggers() {
+        return unscheduleAllTriggs;
+    }
+
+    public void setRefireImmediately(boolean refire) {
+        this.refire = refire;
     }
 
     public void setUnscheduleFiringTrigger(boolean unscheduleTrigg) {
         this.unscheduleTrigg = unscheduleTrigg;
     }
 
-    public boolean unscheduleFiringTrigger() {
-        return unscheduleTrigg;
-    }
-
     public void setUnscheduleAllTriggers(boolean unscheduleAllTriggs) {
         this.unscheduleAllTriggs = unscheduleAllTriggs;
     }
 
-    public boolean unscheduleAllTriggers() {
-        return unscheduleAllTriggs;
-    }
+
 }
